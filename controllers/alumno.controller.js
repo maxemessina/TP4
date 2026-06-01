@@ -192,10 +192,49 @@ const putAlumno = async (req, res) => {
   }
 }
 
+// DELETE alumno por numero de legajo
+const deleteAlumno = async (req, res) => {
+  try {
+    const data = await fs.readFile(dataPath, 'utf8')
+    const alumnos = JSON.parse(data)
+
+    const { legajo } = req.params
+
+    const alumnoIndex = alumnos.findIndex(
+      (a) => Number(a.legajo) === Number(legajo)
+    )
+
+    if (alumnoIndex === -1) {
+      return res.status(404).json({
+        error: `No existe un alumno con el legajo ${legajo}`
+      })
+    }
+
+    const alumnoEliminado = alumnos[alumnoIndex]
+
+    alumnos.splice(alumnoIndex, 1)
+
+    await fs.writeFile(dataPath, JSON.stringify(alumnos, null, 2))
+
+    console.log(`[DELETE] Alumno eliminado. Legajo: ${legajo}`)
+
+    return res.status(200).json({
+      message: 'Alumno eliminado correctamente',
+      alumno: alumnoEliminado
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      error: 'No se pudo eliminar el alumno'
+    })
+  }
+}
+
 module.exports = {
   getAlumnoAll,
   getAlumnoById,
   postAlumno,
   getAlumnoBySearch,
+  deleteAlumno,
   putAlumno
 }

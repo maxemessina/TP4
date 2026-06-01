@@ -4,6 +4,7 @@ const {
   getAlumnoById,
   postAlumno,
   getAlumnoBySearch,
+  deleteAlumno,
   putAlumno
 } = require('../controllers/alumno.controller')
 
@@ -13,6 +14,7 @@ rutas.get('/search', getAlumnoBySearch)
 rutas.get('/', getAlumnoAll)
 rutas.get('/:legajo', getAlumnoById)
 rutas.post('/', postAlumno)
+rutas.delete('/:legajo', deleteAlumno)
 rutas.put('/:legajo', putAlumno)
 
 module.exports = rutas
