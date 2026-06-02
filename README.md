@@ -114,13 +114,21 @@ El equipo implementó un flujo de trabajo estructurado basado en ramas:
 
 ![Screenshot de Postman](./docs/screenshots/getAlumnoBySearch.png)
 
----
-
 #### `POST /alumnos`
 
 **Descripción:** Registra un nuevo alumno en el sistema.
 
 ![Screenshot de Postman](./docs/screenshots/postAlumno.png)
+
+#### `PUT /alumnos`
+
+**Descripción:** Modifica un alumno en el sistema.
+![Screenshot de Postman](./docs/screenshots/putalumnos.png)
+
+#### `DELETE /alumnos/:legajo`
+
+**Descripción:** Realiza la baja lógica de un alumno, marcándolo como inactivo dentro del sistema.
+![Screenshot de Postman](./docs/screenshots/deleteAlumno.png)
 
 ---
 
@@ -142,11 +150,23 @@ El equipo implementó un flujo de trabajo estructurado basado en ramas:
 
 ---
 
-#### `DELETE /alumnos/:legajo`
+### Notas
 
-**Descripción:** Realiza la baja lógica de un alumno, marcándolo como inactivo dentro del sistema.
+#### `GET /notas`
 
-## ![Screenshot de Postman](./docs/screenshots/deleteAlumno.png)
+**Descripción:** Obtiene la lista completa de todas las notas registradas en el sistema.
+
+![Screenshot de Postman](./docs/screenshots/get-notas.jpeg)
+
+---
+
+#### `POST /notas`
+
+**Descripción:** Registra una nueva nota en el sistema.
+
+![Screenshot de Postman](./docs/screenshots/post-notas.jpeg)
+
+---
 
 ## 📂 Estructura de Archivos JSON
 
@@ -200,6 +220,12 @@ Implementa búsqueda con múltiples criterios. Lee el archivo de alumnos y aplic
 
 Los filtros se aplican de forma **AND** (ambos condiciones deben cumplirse si se proporcionan ambos). Retorna array con coincidencias (vacío si no hay resultados). Registra en consola la cantidad de resultados encontrados y retorna `200`. Si falla la lectura del archivo, captura la excepción y retorna estado `500`.
 
+#### `deleteAlumno()`
+
+Esta función se encarga de dar de baja a un alumno. Para hacerlo, busca el alumno por su `legajo` dentro del archivo `alumnos.json`.
+
+Si encuentra el registro, cambia su estado a inactivo y guarda los cambios. Si el alumno no existe, devuelve un error `404 Not Found`. Si ocurre algún problema durante el proceso, devuelve un error `500 Internal Server Error`.
+
 ---
 
 ### Controllers/Materias
@@ -216,10 +242,16 @@ Procesa el registro de nuevas materias mediante `POST`. Realiza validación defe
 
 ---
 
-#### `deleteAlumno()`
+### Controllers/Notas
 
-Esta función se encarga de dar de baja a un alumno. Para hacerlo, busca el alumno por su `legajo` dentro del archivo `alumnos.json`.
+#### `getNotas()`
 
-Si encuentra el registro, cambia su estado a inactivo y guarda los cambios. Si el alumno no existe, devuelve un error `404 Not Found`. Si ocurre algún problema durante el proceso, devuelve un error `500 Internal Server Error`.
+Función **asíncrona** que obtiene la lista completa de notas registradas. Lee el archivo `sys-notas.json` ubicado en la carpeta `extras` mediante `fs.promises` para operaciones de lectura no bloqueante. Implementa un bloque `try/catch` para manejo defensivo de errores. Convierte el contenido del archivo (formato texto) a objeto JavaScript mediante `JSON.parse()` y devuelve el array completo de notas al cliente con código HTTP `200`. Si falla la lectura del archivo, captura la excepción y retorna estado `500`.
 
-La eliminación es lógica, por lo que los datos del alumno no se borran, sino que quedan almacenados como inactivos.
+---
+
+#### `postNota()`
+
+Procesa el registro de nuevas notas mediante `POST`. Realiza validación defensiva verificando que todos los campos obligatorios estén presentes en el cuerpo de la solicitud; si falta alguno, retorna `400 Bad Request`. Lee el archivo `sys-notas.json`, genera automáticamente un nuevo identificador único para la nota, obtiene los datos enviados mediante `req.body`, agrega la nueva nota al array de notas y persiste los cambios reescribiendo el archivo con `fs.writeFile()`. Si la nota se registra exitosamente, retorna `201 Created` con el objeto creado; si ocurre cualquier otro error durante el proceso, captura la excepción y retorna estado `500`.
+
+---
